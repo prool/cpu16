@@ -1,0 +1,22 @@
+Fictional processor "Prool-16" (Prool 16 bit)
+
+address bus 16 bit
+
+data bus 16 bit
+
+16-bit registers:
+
+RD1 - data register #1
+RD2
+
+RA1 - address register #1
+RA2
+
+SP - stack pointer
+IP - instruction pointer
+
+Flags:
+
+stop flag
+invalid opcode flag
+zero flag

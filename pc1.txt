@@ -1,0 +1,10 @@
+Personal Computer "Prool PC-1"
+
+processor Prool-16
+RAM 64K
+
+address space:
+
+total RAM: 0000 - FFFF
+
+screen memory: F830 - FFFF (25 lines, 80 columns, 1 byte - 1 symbol, without color or attributes)
