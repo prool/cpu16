@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include "macro.c"
+
 #define MAXADR (64*1024)
 #define SCREEN (MAXADR-(80*25))
 
@@ -34,49 +36,31 @@ for (i=0;i<MAXADR;i++)
 
 // program code
 counter=0;
+MOV_IMM_RD1(SCREEN);
+MOV_RD1_RA1;
 
-ram[counter++]=0x02; // screen -> RD1
-ram[counter++]=0x30;
-ram[counter++]=0xf8;
-
-ram[counter++]=0x03; // RD1 -> RA1
-
-// 25*80 = 2000 = 0x07D0
-
-ram[counter++]=0x02; // counter -> RD1
-ram[counter++]=0xD0; // counter -> RD1
-ram[counter++]=0x07; // counter -> RD1
-
-ram[counter++]=0x07; // RD1 -> RD2
+MOV_IMM_RD1(25*80);
+MOV_RD1_RD2;
 
 // loop: IP=8
 label=counter;
 
-ram[counter++]=0x01; // ' ' -> RD1
-ram[counter++]=0x20;
+MOVB_IMM_RD1(' ');
+MOVB_RD1_MRA1;
 
-ram[counter++]=0x04; // RD1 -> (RA1)
+MOV_RA1_RD1;
+INC_RD1;
+MOV_RD1_RA1;
 
-ram[counter++]=0x05; //  RA1 -> RD1
-ram[counter++]=0x09; //  INC RD1
-ram[counter++]=0x03; //  RD1 -> RA1
+MOV_RD2_RD1;
+DEC_RD1;
+MOV_RD1_RD2;
 
-ram[counter++]=0x06; //  RD2 -> RD1
-ram[counter++]=0x0A; //  DEC RD1
-ram[counter++]=0x07; //  RD1 -> RD2
+JZ(0x18);
 
-ram[counter++]=0x0C; //  JZ exit
-ram[counter++]=0x18; //  JZ exit
-ram[counter++]=0x00; //  JZ exit
-
-ram[counter++]=0x0B; //  JMP loop
-ram[counter++]=0x07; //  
-ram[counter++]=0x00; //  
-
-// exit: IP=18
-
-//ram[SCREEN]='<';
-//ram[MAXADR-1]='>';
+JMP(label);
+// exit label, ip=0x18
+STOP;
 
 IP=0;
 RD1=0;

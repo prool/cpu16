@@ -1,1 +1,1 @@
-cpu:	cpu.c
+cpu:	cpu.c macro.c
