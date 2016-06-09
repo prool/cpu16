@@ -15,6 +15,7 @@ short unsigned int IP; // IP - instruction pointer
 short unsigned int RD1; // data register #1
 short unsigned int RD2; // data register #2
 short unsigned int RA1; // address register #1
+short unsigned int RA2; // address register #2
 unsigned char opcode; // operation code
 
 // flags
@@ -29,42 +30,21 @@ void init(void)
 int i,j;
 int counter;
 
+unsigned char *cc;
+
 // init ram
 
 for (i=0;i<MAXADR;i++)
 	ram[i]=0;
 
 // program code
-counter=0;
-MOV_IMM_RD1(SCREEN);
-MOV_RD1_RA1;
-
-MOV_IMM_RD1(25*80);
-MOV_RD1_RD2;
-
-// loop: IP=8
-label=counter;
-
-MOVB_IMM_RD1(' ');
-MOVB_RD1_MRA1;
-
-MOV_RA1_RD1;
-INC_RD1;
-MOV_RD1_RA1;
-
-MOV_RD2_RD1;
-DEC_RD1;
-MOV_RD1_RD2;
-
-JZ(0x18);
-
-JMP(label);
-// exit label, ip=0x18
-STOP;
+#include "pgm3.c"
 
 IP=0;
 RD1=0;
+RD2=0;
 RA1=0;
+RA2=0;
 f_stop=0;
 f_invalid_opcode=0;
 f_zero=0;
@@ -94,7 +74,7 @@ for (i=0;i<25;i++)
 	for (j=0;j<80;j++)
 		{
 		c = ram[adr++];
-		if (c==0) c='.';
+		if (c==0) c=' ';
 		printf("%c", c);
 		}
 	switch(i)
@@ -104,9 +84,10 @@ for (i=0;i<25;i++)
 		case 2: printf(" RD1=%04X\n", RD1); break;
 		case 3: printf(" RD2=%04X\n", RD2); break;
 		case 4: printf(" RA1=%04X\n", RA1); break;
-		case 5: printf(" opcode=%02X\n", opcode); break;
-		case 6: printf(" f_zero=%01X\n", f_zero); break;
-		case 7: if (f_invalid_opcode) printf(" INV OP\n"); else printf("\n"); break;
+		case 5: printf(" RA2=%04X\n", RA2); break;
+		case 6: printf(" opcode=%02X\n", opcode); break;
+		case 7: printf(" f_zero=%01X\n", f_zero); break;
+		case 8: if (f_invalid_opcode) printf(" INV OP\n"); else printf("\n"); break;
 		default: printf("\n");
 		}
 	}
@@ -159,6 +140,9 @@ while(f_stop==0)
 		case 0x07: // word RD1 -> RD2
 			RD2=RD1;
 			break;
+		case 0x08: // word RD1 -> RA2
+			RA2=RD1;
+			break;
 		case 0x09: // INC RD1
 			RD1++;
 			break;
@@ -180,6 +164,24 @@ while(f_stop==0)
 			c=ram[IP++];
 			adr=(ram[IP++]<<8) | c;
 			if (f_zero==0) IP=adr;
+			break;
+		case 0x0E: // byte RD1 -> (RA2)
+			ram[RA2]=(char) (0xFF & RD1);
+			break;
+		case 0x0F: // byte (RA1) -> RD1
+			RD1=(RD1&0xFF00) | ram[RA1];
+			break;
+		case 0x10: // byte (RA2) -> RD1
+			RD1=(RD1&0xFF00) | ram[RA2];
+			break;
+		case 0x11: // TST RD1
+			if (RD1) f_zero=0; else f_zero=1;
+			break;
+		case 0x12: // TSTB RD1
+			if (RD1&0xFF) f_zero=0; else f_zero=1;
+			break;
+		case 0x13: // MOV RA2 RD1
+			RD1=RA2;
 			break;
 		case 0xFF: break; // NOP
 		default: // invalid opcode
