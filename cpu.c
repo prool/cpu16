@@ -69,14 +69,19 @@ unsigned char c;
 
 cls();
 adr=SCREEN;
+printf("+");
+for (i=0;i<80;i++) printf("-");
+printf("+\n");
 for (i=0;i<25;i++)
 	{
+	printf("|");
 	for (j=0;j<80;j++)
 		{
 		c = ram[adr++];
 		if (c==0) c=' ';
 		printf("%c", c);
 		}
+	printf("|");
 	switch(i)
 		{
 		case 0: printf(" Prool Computer\n"); break;
@@ -91,6 +96,9 @@ for (i=0;i<25;i++)
 		default: printf("\n");
 		}
 	}
+printf("+");
+for (i=0;i<80;i++) printf("-");
+printf("+\n");
 if (trace) {printf(" TRACE. PRESSANYKEY "); getchar();}
 }
 
